@@ -53,9 +53,9 @@ tests = testGroup ""
         forAll (arbitrary `suchThat` \v -> v /= x) $ \(y :: Int) ->
         L.top (L.Pos x y) === y
  ,   testCase "render produces the expected results" $ do
-        assertEqual "" (L.render [] 1) ""
-        assertEqual "" (L.render (tail L.doc) 1) "I am item #1\nThere. Are. 2. Items.\n"
-        assertEqual "" (L.render L.doc 1) "1. An item\nI am item #2\nThere. Are. 3. Items.\n"
+        assertEqual "" "" (L.render [] 1)
+        assertEqual "" "I am item #1\nThere. Are. 2. Items.\n" (L.render (tail L.doc) 1)
+        assertEqual "" "1. An item\nI am item #2\nThere. Are. 3. Items.\n" (L.render L.doc 1)
  ]
 
 --------------------------------------------------------------------------------
