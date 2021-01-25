@@ -4,24 +4,30 @@
 --------------------------------------------------------------------------------
 
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
+
+import Data.Proxy
 
 import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
 
+import Test.Tasty.QuickCheck.Laws.Eq
+
 import qualified Lab as L
 
 --------------------------------------------------------------------------------
 
+instance Arbitrary L.IntPos where 
+    arbitrary = L.IntPos <$> arbitrary <*> arbitrary
+
+instance Arbitrary a => Arbitrary (L.Pos a) where
+    arbitrary = L.Pos <$> arbitrary <*> arbitrary
+
 tests :: TestTree 
 tests = testGroup "" 
  [
-     testProperty "Eq instance for IntPos correctly determines equal values" $ 
-        \(x :: Int) (y :: Int) -> (L.IntPos x y) === (L.IntPos x y)
- ,   testProperty "Eq instance for IntPos correctly determines inequal values" $ 
-        \(x :: Int) -> 
-        forAll (arbitrary `suchThat` \v -> v /= x) $ \(y :: Int) ->
-        (L.IntPos x y) =/= (L.IntPos y x)
+     testEqLaws (Proxy @L.IntPos)
  ,   testProperty "Show instance for IntPos works" $ 
         \(x :: Int) -> \(y :: Int) ->
         show (L.IntPos x y) === concat ["IntPos ", show x, " ", show y]
@@ -34,12 +40,7 @@ tests = testGroup ""
         \(x :: Int) -> 
         forAll (arbitrary `suchThat` \v -> v /= x) $ \(y :: Int) ->
         L.y (L.IntPos x y) === y
- ,   testProperty "Eq instance for Pos correctly determines equal values" $ 
-        \(x :: Int) (y :: Int) -> (L.Pos x y) === (L.Pos x y)
- ,   testProperty "Eq instance for Pos correctly determines inequal values" $ 
-        \(x :: Int) -> 
-        forAll (arbitrary `suchThat` \v -> v /= x) $ \(y :: Int) ->
-        (L.Pos x y) =/= (L.Pos y x)
+ ,   testEqLaws (Proxy @(L.Pos Int))
  ,   testProperty "Show instance for Pos works" $ 
         \(x :: Int) -> \(y :: Int) ->
         show (L.Pos x y) === concat ["Pos ", show x, " ", show y]
